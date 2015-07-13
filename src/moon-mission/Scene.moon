@@ -1,0 +1,2 @@
+class Scene
+  new: (@game)=>
