@@ -52,6 +52,11 @@ case $continue_stage in
     # messagepack
     $MM_ROOT/bin/luarocks install lua-messagepack || exit
     ;&
+  luasocket)
+    echo "luasocket" > "$MM_PATH/.continue_stage"
+    # luasocket
+    $MM_ROOT/bin/luarocks install luasocket || exit
+    ;&
   moonscript)
     echo "moonscript" > "$MM_PATH/.continue_stage"
     $MM_ROOT/bin/luarocks install moonscript

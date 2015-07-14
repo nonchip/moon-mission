@@ -8,6 +8,7 @@ trim=utils.string.trim
 class Game
   new: (@options={})=>
     @prompt or="> "
+    @initscene or="INIT"
     @data or={}
     @name or= @__class.__name
     @scene_instances={k,v @ for k,v in pairs @scenes}
@@ -20,20 +21,35 @@ class Game
       @to @initscene
     if @options.run
       @run!
+  tick:=> -- override this.
   run: =>
     @running=true
     while @running
-      if @prompt
-        io.write @prompt
+      @showprompt!
+      while not @stepasync 0.01
+        @currentscene\tick!
+        @tick!
+  showprompt: =>
+    if @prompt
+      io.write @prompt
       io.flush!
+  stepasync: (timeout=0)=>
+    if utils.io.select timeout
       inp=trim io.read "*l"
-      words=[w for w in inp\gmatch("%w+")]
-      if @currentscene["c_"..words[1]]
-        @currentscene["c_"..words[1]] @currentscene, unpack words
-      elseif @["c_"..words[1]]
-        @["c_"..words[1]] @, unpack words
-      else
-        @whatDoYouMean unpack words
+      @handlecommands inp
+      return true
+    else
+      return false
+  handlecommands: (inp)=>
+    words=[w for w in inp\gmatch("%w+")]
+    if #words==0
+      return
+    if @currentscene["c_"..words[1]]
+      @currentscene["c_"..words[1]] @currentscene, unpack words
+    elseif @["c_"..words[1]]
+      @["c_"..words[1]] @, unpack words
+    else
+      @whatDoYouMean unpack words
   out: (str,strip=true,more=20,wrapl=79)=>
     if strip
       str=dedent str

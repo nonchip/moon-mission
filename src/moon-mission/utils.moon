@@ -1,3 +1,5 @@
+bit=require "bit"
+ffi=require "ffi"
 string=require "string"
 
 _string={}
@@ -49,4 +51,21 @@ _string.wrap=(str,limit,indent,indent1)->
   table.concat [_string.wrap_simple l,limit,indent,indent1 for l in _string.gsplit str,"\n"], "\n"
 
 
-{string:_string}
+
+
+
+
+_io={}
+
+
+socket=require 'socket'
+-- i'm so terribly sorry for this one, but using ffi and syscalls for select() is even more hacky.
+keyboard = socket.tcp!
+keyboard\close!
+keyboard\setfd 0
+
+_io.select=(timeout=0)->
+  r,w,e=socket.select({keyboard}, nil , timeout)
+  return r[1]==keyboard and e!="timeout"
+
+{string:_string, io:_io}
