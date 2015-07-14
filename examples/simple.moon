@@ -17,7 +17,28 @@ class MySimpleGame extends Game
     Second: class extends Scene
       enter: =>
         @game\out "You entered the Second scene."
-        @game\out "Bye, #{@game.data.username}"
+        @game\out [[
+          Btw, moon-mission handles dedentation
+          of multiline strings for you.
+          Also,
+          it
+          takes
+          care
+          you
+          don't
+          output
+          too
+          much
+          without
+          the
+          user
+          being
+          able
+          to
+          read
+          it.
+        ]]
+        @game\out "Bye, #{@game.data.username}. This is a very long string to show you auto-wrapping."
         @game\quit!
 
   }
