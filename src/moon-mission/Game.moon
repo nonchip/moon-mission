@@ -6,7 +6,7 @@ wrap=utils.string.wrap
 
 class Game
   new: (@options={})=>
-    @data={}
+    @data or={}
     @name or= @__class.__name
     @scene_instances={k,v @ for k,v in pairs @scenes}
     if @options.load
