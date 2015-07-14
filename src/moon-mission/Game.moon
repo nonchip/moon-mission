@@ -3,9 +3,11 @@ utils=require "moon-mission.utils"
 dedent=utils.string.dedent
 gsplit=utils.string.gsplit
 wrap=utils.string.wrap
+trim=utils.string.trim
 
 class Game
   new: (@options={})=>
+    @prompt or="> "
     @data or={}
     @name or= @__class.__name
     @scene_instances={k,v @ for k,v in pairs @scenes}
@@ -21,15 +23,18 @@ class Game
   run: =>
     @running=true
     while @running
-      inp=io.read "*l"
+      if @prompt
+        io.write @prompt
+      io.flush!
+      inp=trim io.read "*l"
       words=[w for w in inp\gmatch("%w+")]
       if @currentscene["c_"..words[1]]
-        @currentscene["c_"..words[1]] @currentscene, words
+        @currentscene["c_"..words[1]] @currentscene, unpack words
       elseif @["c_"..words[1]]
-        @["c_"..words[1]] @, words
+        @["c_"..words[1]] @, unpack words
       else
-        @whatDoYouMean words
-  out: (str,strip=true,more=10,wrapl=60)=>
+        @whatDoYouMean unpack words
+  out: (str,strip=true,more=20,wrapl=79)=>
     if strip
       str=dedent str
     if wrapl>0
@@ -44,15 +49,21 @@ class Game
           @more!
     else
       print str
-  more: =>
-    io.write "[More...] "
+  more: (str="[More...] ")=>
+    io.write str
     io.flush!
     io.read "*l"
-  whatDoYouMean: (words)=>
+  whatDoYouMean: (...)=>
     @out "I don't understand that."
   askText: (...)=>
     @out ...
-    io.read "*l"
+    trim io.read "*l"
+  askYN: (...)=>
+    @out ...
+    io.write "[Y/n] "
+    io.flush!
+    yn=io.read 1
+    return yn=="Y" or yn=="" or yn=="y" or yn=="\n"
   quit: =>
     @running=false
   to: (s)=>
