@@ -3,3 +3,4 @@
 /moon
 /.sublime-project*
 *.save
+*/docs/*

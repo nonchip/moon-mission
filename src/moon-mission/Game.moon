@@ -27,7 +27,10 @@ class Game
     while @running
       @showprompt!
       while not @stepasync 0.01
-        @currentscene\tick!
+        i=@currentscene
+        while i
+          i\tick!
+          i=i.__parent
         @tick!
   showprompt: =>
     if @prompt
@@ -44,11 +47,17 @@ class Game
     words=[w for w in inp\gmatch("%w+")]
     if #words==0
       return
-    if @currentscene["c_"..words[1]]
-      @currentscene["c_"..words[1]] @currentscene, unpack words
-    elseif @["c_"..words[1]]
+    done=false
+    i=@currentscene
+    while i
+      if i["c_"..words[1]]
+        i["c_"..words[1]] i, unpack words
+        done=true
+        break
+      i=i.__parent
+    if not done and @["c_"..words[1]]
       @["c_"..words[1]] @, unpack words
-    else
+    elseif not done
       @whatDoYouMean unpack words
   out: (str,strip=true,more=20,wrapl=79)=>
     if strip
@@ -87,7 +96,13 @@ class Game
     @currentscene=@scene_instances[s]
     @currentscene_name=s
     if old ~= @currentscene
-      old\exit! if old
-      @currentscene\enter! if @currentscene
+      i=old
+      while i
+        i\exit!
+        i=i.__parent
+      i=@currentscene
+      while i
+        i\enter!
+        i=i.__parent
   save: =>
     msgpack.pack({cs:@currentscene_name,data:@data})
